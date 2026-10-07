@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MARS BIO LAB — VR Mission</title>
+<script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+<style>
+  html,body{margin:0;background:#03050a;font-family:Arial,sans-serif;color:#fff}
+  #hud{position:fixed;z-index:20;top:14px;left:14px;right:14px;max-width:650px;
+       background:rgba(3,5,10,.84);border:1px solid rgba(255,255,255,.16);
+       border-radius:16px;padding:14px 16px;backdrop-filter:blur(8px)}
+  #hud h1{font-size:20px;margin:0 0 6px}
+  #hud p{margin:4px 0;font-size:14px;line-height:1.4}
+  #progress{font-weight:700;color:#ffd36a}
+  #enter{margin-top:8px;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+</style>
+<script>
+let completed = new Set();
+
+AFRAME.registerComponent('teleport-to', {
+  schema: {x:{default:0}, y:{default:0}, z:{default:0}},
+  init:function(){
+    this.el.addEventListener('click', ()=>{
+      const rig = document.querySelector('#rig');
+      rig.setAttribute('position', `${this.data.x} ${this.data.y} ${this.data.z}`);
+      document.querySelector('#selectSound').components.sound.playSound();
+    });
+  }
+});
+
+AFRAME.registerComponent('station-unlock', {
+  schema: {id:{type:'string'}, panel:{type:'selector'}},
+  init:function(){
+    this.el.addEventListener('click', ()=>{
+      if(this.data.panel) this.data.panel.setAttribute('visible', true);
+      completed.add(this.data.id);
+      document.querySelector('#selectSound').components.sound.playSound();
+      updateProgress();
+      this.el.setAttribute('material','emissiveIntensity',1.35);
+    });
+  }
+});
+
+AFRAME.registerComponent('quiz-choice', {
+  schema:{correct:{default:false}, target:{type:'selector'}},
+  init:function(){
+    this.el.addEventListener('click', ()=>{
+      const msg = this.data.target;
+      if(!msg) return;
+      msg.setAttribute('visible', true);
+      msg.setAttribute('text','value',
+        this.data.correct ? 'Correct! Biology systems must work together.' : 'Try again — think about what a Mars habitat needs.'
+      );
+      msg.setAttribute('text','color', this.data.correct ? '#6dff9a' : '#ff8b78');
+      if(this.data.correct){
+        document.querySelector('#completeSound').components.sound.playSound();
+      } else {
+        document.querySelector('#selectSound').components.sound.playSound();
+      }
+    });
+  }
+});
+
+AFRAME.registerComponent('pulse', {
+  schema:{speed:{default:2.2},min:{default:.45},max:{default:1.25}},
+  tick:function(time){
+    const v=this.data.min+(Math.sin(time/500*this.data.speed)+1)/2*(this.data.max-this.data.min);
+    this.el.setAttribute('material','emissiveIntensity',v);
+  }
+});
+
+AFRAME.registerComponent('floaty', {
+  schema:{speed:{default:1},height:{default:.12}},
+  init:function(){this.baseY=this.el.object3D.position.y},
+  tick:function(t){this.el.object3D.position.y=this.baseY+Math.sin(t/1000*this.data.speed)*this.data.height}
+});
+
+function updateProgress(){
+  const n=completed.size;
+  document.querySelector('#progress').textContent=`Mission progress: ${n}/3 stations`;
+  const vrText = document.querySelector('#progressText');
+  if(vrText) vrText.setAttribute('text','value',`MISSION PROGRESS: ${n}/3`);
+  if(n===3){
+    document.querySelector('#finalPanel').setAttribute('visible',true);
+    document.querySelector('#quizArea').setAttribute('visible',true);
+    document.querySelector('#completeSound').components.sound.playSound();
+  }
+}
+function enterVR(){ const s=document.querySelector('a-scene'); if(s&&s.enterVR)s.enterVR(); }
+function startAmbient(){
+  const a=document.querySelector('#ambientSound');
+  if(a && a.components.sound) a.components.sound.playSound();
+}
+window.addEventListener('load',()=>setTimeout(startAmbient,1200));
+</script>
+</head>
+<body>
+<div id="hud">
+  <h1>🚀 MARS BIO LAB — VR Mission</h1>
+  <p>Visit the three biology stations, unlock each briefing, then finish the final challenge.</p>
+  <p id="progress">Mission progress: 0/3 stations</p>
+  <button id="enter" onclick="enterVR()">Enter VR</button>
+</div>
+
+<a-scene renderer="colorManagement:true;physicallyCorrectLights:true" background="color:#02040a" vr-mode-ui="enabled:true">
+<a-assets>
+  <img id="welcomeTex" src="welcome.svg">
+  <img id="plantTex" src="plants.svg">
+  <img id="humanTex" src="human.svg">
+  <img id="microbeTex" src="microbes.svg">
+  <img id="finalTex" src="final.svg">
+  <audio id="selectWav" src="select.wav" preload="auto"></audio>
+  <audio id="completeWav" src="complete.wav" preload="auto"></audio>
+  <audio id="ambientWav" src="ambient.wav" preload="auto"></audio>
+</a-assets>
+
+<a-entity id="selectSound" sound="src:#selectWav;volume:.7"></a-entity>
+<a-entity id="completeSound" sound="src:#completeWav;volume:.8"></a-entity>
+<a-entity id="ambientSound" sound="src:#ambientWav;loop:true;volume:.22"></a-entity>
+
+<!-- LIGHTING -->
+<a-entity light="type:ambient;intensity:.55;color:#8ba9d8"></a-entity>
+<a-entity light="type:directional;intensity:1.25;color:#ffd6b8" position="-5 9 3"></a-entity>
+<a-entity light="type:point;intensity:1.1;distance:25;color:#ff6d3a" position="0 5 -12"></a-entity>
+
+<!-- SKY / STARS -->
+<a-sky color="#02030a"></a-sky>
+<a-entity id="stars">
+  <a-sphere position="-9 8 -20" radius=".06" color="#fff"></a-sphere>
+  <a-sphere position="-5 10 -18" radius=".05" color="#b8d7ff"></a-sphere>
+  <a-sphere position="1 9 -22" radius=".07" color="#fff"></a-sphere>
+  <a-sphere position="7 8 -19" radius=".05" color="#d9caff"></a-sphere>
+  <a-sphere position="10 11 -26" radius=".06" color="#fff"></a-sphere>
+  <a-sphere position="-12 12 -28" radius=".07" color="#fff"></a-sphere>
+</a-entity>
+
+<!-- MARS -->
+<a-plane position="0 0 -12" rotation="-90 0 0" width="50" height="50" color="#8f3827" material="roughness:1"></a-plane>
+<a-dodecahedron position="-9 1.3 -16" radius="2.8" color="#60251e"></a-dodecahedron>
+<a-dodecahedron position="10 1.8 -20" radius="3.8" color="#6d2c21"></a-dodecahedron>
+<a-dodecahedron position="3 .7 -11" radius="1.2" color="#4e2019"></a-dodecahedron>
+<a-dodecahedron position="-4 .5 -9" radius=".9" color="#552119"></a-dodecahedron>
+<a-sphere position="-15 11 -30" radius="2.7" color="#ff8248" material="emissive:#ff5b2d;emissiveIntensity:.7"></a-sphere>
+
+<!-- WELCOME -->
+<a-image src="#welcomeTex" position="0 3.25 -6.2" width="5.7" height="3.05"></a-image>
+<a-text id="progressText" value="MISSION PROGRESS: 0/3" align="center" color="#ffd36a"
+        position="0 1.15 -6.05" width="5"></a-text>
+
+<!-- TELEPORT HUB -->
+<a-cylinder class="clickable" position="-3 .12 -4.5" radius=".7" height=".12" color="#55ff83"
+ material="emissive:#1fbf52;emissiveIntensity:.8" pulse
+ teleport-to="x:-6;y:0;z:-7"></a-cylinder>
+<a-text value="FARM" position="-3.55 .55 -4.5" width="2" color="#dffff0"></a-text>
+
+<a-cylinder class="clickable" position="0 .12 -4.5" radius=".7" height=".12" color="#52d4ff"
+ material="emissive:#147cab;emissiveIntensity:.8" pulse
+ teleport-to="x:0;y:0;z:-8"></a-cylinder>
+<a-text value="HUMAN" position="-.55 .55 -4.5" width="2.2" color="#e7f9ff"></a-text>
+
+<a-cylinder class="clickable" position="3 .12 -4.5" radius=".7" height=".12" color="#d86cff"
+ material="emissive:#8f2cad;emissiveIntensity:.8" pulse
+ teleport-to="x:6;y:0;z:-7"></a-cylinder>
+<a-text value="MICROBES" position="2.3 .55 -4.5" width="2.8" color="#fde8ff"></a-text>
+
+<!-- STATION 1: FARM -->
+<a-entity position="-6 0 -11">
+  <a-sphere position="0 1.7 0" radius="2.55" material="color:#76eaff;opacity:.13;transparent:true;wireframe:true"></a-sphere>
+  <a-cylinder position="0 .5 0" radius="2.25" height=".25" color="#c8c8c8"></a-cylinder>
+  <a-entity position="0 .7 0">
+    <a-cylinder radius=".11" height="1.1" color="#4b913d"></a-cylinder>
+    <a-sphere position="-.28 .25 0" radius=".22" scale="1.35 .55 .8" color="#62c966"></a-sphere>
+    <a-sphere position=".28 .48 0" radius=".22" scale="1.35 .55 .8" color="#7ddd69"></a-sphere>
+    <a-sphere position="-.18 .74 0" radius=".2" scale="1.25 .55 .8" color="#87e86e"></a-sphere>
+  </a-entity>
+  <a-cylinder class="clickable" position="0 .75 2.4" radius=".52" height=".18" color="#55ff83"
+      material="emissive:#20c957;emissiveIntensity:.8" pulse
+      station-unlock="id:plants;panel:#plantPanel"></a-cylinder>
+  <a-text value="UNLOCK FARM BRIEFING" align="center" position="0 1.25 2.45" width="3.4" color="#dffff0"></a-text>
+  <a-image id="plantPanel" src="#plantTex" position="0 3.3 1.3" width="4.6" height="2.5" visible="false"></a-image>
+</a-entity>
+
+<!-- STATION 2: HUMAN -->
+<a-entity position="0 0 -13">
+  <a-entity position="0 2.0 0" floaty="speed:.8;height:.16">
+    <a-sphere position="0 1.1 0" radius=".38" color="#f0f2f6"></a-sphere>
+    <a-cylinder position="0 .2 0" radius=".48" height="1.35" color="#f7f7f7"></a-cylinder>
+    <a-cylinder position="-.65 .25 0" radius=".13" height="1.1" rotation="0 0 -18" color="#f7f7f7"></a-cylinder>
+    <a-cylinder position=".65 .25 0" radius=".13" height="1.1" rotation="0 0 18" color="#f7f7f7"></a-cylinder>
+    <a-cylinder position="-.24 -.75 0" radius=".14" height=".95" color="#f7f7f7"></a-cylinder>
+    <a-cylinder position=".24 -.75 0" radius=".14" height=".95" color="#f7f7f7"></a-cylinder>
+    <a-sphere position="0 1.1 .18" radius=".29" scale="1 1 .35" color="#1c2941" material="metalness:.4;roughness:.15"></a-sphere>
+  </a-entity>
+  <a-ring position="0 .16 0" rotation="-90 0 0" radius-inner="1.3" radius-outer="1.45"
+          material="color:#52d4ff;emissive:#1784b8;emissiveIntensity:.8"></a-ring>
+  <a-cylinder class="clickable" position="0 .75 2.3" radius=".52" height=".18" color="#52d4ff"
+      material="emissive:#1784b8;emissiveIntensity:.8" pulse
+      station-unlock="id:human;panel:#humanPanel"></a-cylinder>
+  <a-text value="UNLOCK HUMAN BRIEFING" align="center" position="0 1.25 2.35" width="3.6" color="#e7f9ff"></a-text>
+  <a-image id="humanPanel" src="#humanTex" position="0 3.45 1.2" width="4.7" height="2.55" visible="false"></a-image>
+</a-entity>
+
+<!-- STATION 3: MICROBES -->
+<a-entity position="6 0 -11">
+  <a-box position="0 .7 0" width="3.8" height="1.4" depth="1.4" color="#25273a"></a-box>
+  <a-cylinder position="-.75 1.7 0" radius=".48" height="1.5"
+      material="color:#be67ff;opacity:.5;transparent:true;emissive:#6b2da0;emissiveIntensity:.35"></a-cylinder>
+  <a-sphere position="-.75 1.7 0" radius=".18" color="#ff7bdc" floaty="speed:1.7;height:.14"></a-sphere>
+  <a-cylinder position=".65 1.7 0" radius=".48" height="1.5"
+      material="color:#55e7ff;opacity:.5;transparent:true;emissive:#1d8292;emissiveIntensity:.35"></a-cylinder>
+  <a-sphere position=".65 1.7 0" radius=".16" color="#6effad" floaty="speed:1.25;height:.1"></a-sphere>
+  <a-cylinder class="clickable" position="0 .75 2.4" radius=".52" height=".18" color="#d86cff"
+      material="emissive:#8f2cad;emissiveIntensity:.8" pulse
+      station-unlock="id:microbes;panel:#microbePanel"></a-cylinder>
+  <a-text value="UNLOCK MICROBE BRIEFING" align="center" position="0 1.25 2.45" width="3.6" color="#fde8ff"></a-text>
+  <a-image id="microbePanel" src="#microbeTex" position="0 3.3 1.3" width="4.6" height="2.5" visible="false"></a-image>
+</a-entity>
+
+<!-- FINAL AREA -->
+<a-image id="finalPanel" src="#finalTex" position="0 3.3 -18" width="5.8" height="3.1" visible="false"></a-image>
+
+<a-entity id="quizArea" position="0 0 -16" visible="false">
+  <a-text value="FINAL CHALLENGE" align="center" color="#ffd36a" position="0 2.2 0" width="5"></a-text>
+  <a-text value="Which combination best supports a long-term Mars habitat?" align="center"
+          color="#ffffff" position="0 1.7 0" width="6"></a-text>
+
+  <a-box class="clickable" position="-2 .9 0" width="2.4" height=".6" depth=".15" color="#5c2930"
+         quiz-choice="correct:false;target:#quizMsg"></a-box>
+  <a-text value="Only machines" align="center" position="-2 .88 .09" width="2.6" color="#fff"></a-text>
+
+  <a-box class="clickable" position="0 .9 0" width="2.6" height=".6" depth=".15" color="#285b3c"
+         quiz-choice="correct:true;target:#quizMsg"></a-box>
+  <a-text value="Plants + Humans + Microbes" align="center" position="0 .88 .09" width="2.9" color="#fff"></a-text>
+
+  <a-box class="clickable" position="2.25 .9 0" width="2.4" height=".6" depth=".15" color="#40305d"
+         quiz-choice="correct:false;target:#quizMsg"></a-box>
+  <a-text value="Only plants" align="center" position="2.25 .88 .09" width="2.6" color="#fff"></a-text>
+
+  <a-text id="quizMsg" value="" align="center" position="0 .25 0" width="5.5" visible="false"></a-text>
+</a-entity>
+
+<!-- HOME TELEPORTS near each station -->
+<a-cylinder class="clickable" position="-6 .1 -8.6" radius=".42" height=".12" color="#ffd36a"
+ material="emissive:#a47613;emissiveIntensity:.8" teleport-to="x:0;y:0;z:1"></a-cylinder>
+<a-cylinder class="clickable" position="0 .1 -10.6" radius=".42" height=".12" color="#ffd36a"
+ material="emissive:#a47613;emissiveIntensity:.8" teleport-to="x:0;y:0;z:1"></a-cylinder>
+<a-cylinder class="clickable" position="6 .1 -8.6" radius=".42" height=".12" color="#ffd36a"
+ material="emissive:#a47613;emissiveIntensity:.8" teleport-to="x:0;y:0;z:1"></a-cylinder>
+
+<!-- PLAYER -->
+<a-entity id="rig" position="0 0 1">
+  <a-camera position="0 1.65 0">
+    <a-cursor raycaster="objects:.clickable" fuse="false" material="color:white;shader:flat"></a-cursor>
+  </a-camera>
+  <a-entity laser-controls="hand:left" raycaster="objects:.clickable"></a-entity>
+  <a-entity laser-controls="hand:right" raycaster="objects:.clickable"></a-entity>
+</a-entity>
+
+</a-scene>
+</body>
+</html>
