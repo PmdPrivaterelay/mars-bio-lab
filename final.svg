@@ -1,14 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650">
 <defs>
-  <linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#07111c"/><stop offset="1" stop-color="#0a0d18"/></linearGradient>
+  <linearGradient id="bg" x1="0" x2="1">
+    <stop offset="0" stop-color="#09101a"/>
+    <stop offset="1" stop-color="#10182b"/>
+  </linearGradient>
   <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<rect width="1200" height="650" rx="34" fill="url(#bg)"/>
-<rect x="10" y="10" width="1180" height="630" rx="30" fill="none" stroke="#ffd36a" stroke-width="5"/>
-<text x="78" y="110" font-family="Arial" font-size="65" font-weight="800" fill="#ffd36a" filter="url(#glow)">MISSION COMPLETE</text>
-<text x="79" y="165" font-family="Arial" font-size="30" fill="#c7d0de">You explored the biology behind living beyond Earth.</text>
-<text x="1085" y="116" text-anchor="middle" font-family="Arial" font-size="82" fill="#ffd36a">★</text>
-<line x1="80" y1="195" x2="1120" y2="195" stroke="#ffffff" stroke-opacity=".15" stroke-width="2"/>
-<text x="90" y="255" font-family="Arial" font-size="38" fill="#f4f7fb"><tspan fill="#ffd36a" font-size="30">●</tspan> A Mars habitat needs food, healthy humans, and controlled microbes.</text><text x="90" y="323" font-family="Arial" font-size="38" fill="#f4f7fb"><tspan fill="#ffd36a" font-size="30">●</tspan> Biology connects all three systems.</text><text x="90" y="391" font-family="Arial" font-size="38" fill="#f4f7fb"><tspan fill="#ffd36a" font-size="30">●</tspan> Final challenge unlocked — answer the quiz!</text>
-<text x="600" y="585" text-anchor="middle" font-family="Arial" font-size="26" fill="#9ba7bb">MARS BIO LAB — Khalid Maafa — Class 1/2</text>
+<rect width="1200" height="650" rx="32" fill="url(#bg)"/>
+<rect x="10" y="10" width="1180" height="630" rx="28" fill="none" stroke="#f58fff" stroke-width="5"/>
+<text x="76" y="110" font-family="Arial" font-size="64" font-weight="800" fill="#f58fff" filter="url(#glow)">MISSION COMPLETE</text>
+<text x="76" y="165" font-family="Arial" font-size="31" fill="#cbd3e5">You explored all three school subjects in one space expo.</text>
+<line x1="76" y1="197" x2="1124" y2="197" stroke="#ffffff" stroke-opacity=".16" stroke-width="2"/>
+<text x="95" y="250" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#f58fff" font-size="32">●</tspan> Biology explains living systems in space.</text><text x="95" y="318" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#f58fff" font-size="32">●</tspan> Chemistry explains fuel, reactions, and materials.</text><text x="95" y="386" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#f58fff" font-size="32">●</tspan> English helps us describe ideas and communicate science.</text>
+<text x="600" y="596" text-anchor="middle" font-family="Arial" font-size="24" fill="#9aa9c4">Final quiz unlocked</text>
 </svg>

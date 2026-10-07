@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650">
+<defs>
+  <linearGradient id="bg" x1="0" x2="1">
+    <stop offset="0" stop-color="#09101a"/>
+    <stop offset="1" stop-color="#10182b"/>
+  </linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1200" height="650" rx="32" fill="url(#bg)"/>
+<rect x="10" y="10" width="1180" height="630" rx="28" fill="none" stroke="#ff974d" stroke-width="5"/>
+<text x="76" y="110" font-family="Arial" font-size="64" font-weight="800" fill="#ff974d" filter="url(#glow)">CHEMISTRY IN SPACE</text>
+<text x="76" y="165" font-family="Arial" font-size="31" fill="#cbd3e5">Reactions that power exploration</text>
+<line x1="76" y1="197" x2="1124" y2="197" stroke="#ffffff" stroke-opacity=".16" stroke-width="2"/>
+<text x="95" y="250" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#ff974d" font-size="32">●</tspan> Rocket engines depend on controlled chemical reactions.</text><text x="95" y="318" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#ff974d" font-size="32">●</tspan> Fuel and oxidizer release energy to create thrust.</text><text x="95" y="386" font-family="Arial" font-size="38" fill="#f6f8fb"><tspan fill="#ff974d" font-size="32">●</tspan> Chemistry also helps produce oxygen, water, and useful materials.</text>
+<text x="600" y="596" text-anchor="middle" font-family="Arial" font-size="24" fill="#9aa9c4">Chemistry Booth</text>
+</svg>
